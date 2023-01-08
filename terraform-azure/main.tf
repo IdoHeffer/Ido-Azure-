@@ -60,7 +60,7 @@ resource "azurerm_subnet_network_security_group_association" "ido-sga" {
   network_security_group_id = azurerm_network_security_group.ido-sg.id
 }
 
-# Create a public IP address
+# Create a public IP address for Load balancer for VM's 
 resource "azurerm_public_ip" "ido-public-ip" {
   name                = "ido-public-ip"
   resource_group_name = azurerm_resource_group.ido-resources-tf.name
@@ -130,6 +130,18 @@ resource "azurerm_virtual_machine" "ido-vm" {
   }
 }
 
+# Create a public IP address
+resource "azurerm_public_ip" "ido-chef-public-ip" {
+  name                = "ido-chef-public-ip"
+  resource_group_name = azurerm_resource_group.ido-resources-tf.name
+  location            = azurerm_resource_group.ido-resources-tf.location
+  allocation_method   = "Static"
+
+  tags = {
+    environment = "dev"
+  }
+}
+
 # Create 1 chef network interfaces
 resource "azurerm_network_interface" "chef-nic" {
   count               = 1
@@ -141,6 +153,7 @@ resource "azurerm_network_interface" "chef-nic" {
     name                          = "testconfiguration-${count.index}"
     subnet_id                     = module.idos_virtual_network_subnet.subnet.id
     private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.ido-chef-public-ip.id
   }
 }
 
@@ -151,7 +164,7 @@ resource "azurerm_virtual_machine" "chef-server" {
   location              = azurerm_resource_group.ido-resources-tf.location
   resource_group_name   = azurerm_resource_group.ido-resources-tf.name
   network_interface_ids = [azurerm_network_interface.chef-nic[count.index].id]
-  vm_size               = "Standard_B1s"
+  vm_size               = "Standard_B2s"
   availability_set_id   = azurerm_availability_set.ido-as.id
 
   storage_image_reference {
