@@ -49,7 +49,7 @@ resource "azurerm_network_security_rule" "ido-dev-rule" {
   protocol                    = "*"
   source_port_range           = "443"
   destination_port_range      = ""
-  source_address_prefix       = "*"
+  source_address_prefix       = "93.172.0.74/32"
   destination_address_prefix  = "*"
   resource_group_name         = azurerm_resource_group.ido-resources-tf.name
   network_security_group_name = azurerm_network_security_group.ido-sg.name
@@ -122,7 +122,6 @@ resource "azurerm_virtual_machine" "ido-vm" {
   os_profile {
     computer_name  = "ido-vm-${count.index}"
     admin_username = "testadmin"
-    admin_password = "Password1234!"
   }
 
   os_profile_linux_config {
@@ -183,7 +182,6 @@ resource "azurerm_virtual_machine" "chef-server" {
   os_profile {
     computer_name  = "chef-server"
     admin_username = "chefadmin"
-    admin_password = "Password1234!"
   }
 
   os_profile_linux_config {
