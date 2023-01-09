@@ -47,8 +47,8 @@ resource "azurerm_network_security_rule" "ido-dev-rule" {
   direction                   = "Inbound"
   access                      = "Allow"
   protocol                    = "*"
-  source_port_range           = "*"
-  destination_port_range      = "*"
+  source_port_range           = "443"
+  destination_port_range      = ""
   source_address_prefix       = "*"
   destination_address_prefix  = "*"
   resource_group_name         = azurerm_resource_group.ido-resources-tf.name
@@ -191,9 +191,9 @@ resource "azurerm_virtual_machine" "chef-server" {
   }
 }
 
-data "local_file" "chef_valid_key" {
-  filename = "${path.module}/chefserverkey.pem"
-}
+# data "local_file" "chef_valid_key" {
+#    filename = "${path.module}/chefserverkey.pem"
+# }
 
 # resource "azurerm_virtual_machine_extension" "chef" {
 #   count                = 2
@@ -248,14 +248,14 @@ resource "azurerm_lb_rule" "load_balancer_rule" {
   frontend_ip_configuration_name = "ido-frontend-ip"
   backend_address_pool_ids       = [azurerm_lb_backend_address_pool.backend_address_pool.id]
   protocol                       = "Tcp"
-  frontend_port                  = 80
-  backend_port                   = 80
+  frontend_port                  = 443
+  backend_port                   = 443
 }
 
 resource "azurerm_lb_probe" "lb_probe" {
   loadbalancer_id     = azurerm_lb.ido-lb.id
   name                = "ido-probe"
-  port                = 80
+  port                = 443
   request_path        = "/"
   protocol            = "Http"
   interval_in_seconds = 15
